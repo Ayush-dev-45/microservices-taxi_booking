@@ -1,0 +1,6 @@
+/captain/node_modules
+/user/node_modules
+/gateway/node_modules
+/ride/node_modules
+
+**/node_modules/
