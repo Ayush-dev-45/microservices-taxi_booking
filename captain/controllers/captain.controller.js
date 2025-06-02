@@ -2,6 +2,9 @@ const blackListModel = require('../models/blacklist.model');
 const captainModel = require('../models/captain.model');
 const userModel = require('../models/captain.model');
 const { validationResult } = require('express-validator');
+const { subscribeToQueue } = require('../services/rabbitMq');
+
+const pendingReq = [];
 
 module.exports.registerUser = async (req, res, next) => {
     const errors = validationResult(req);
@@ -91,3 +94,20 @@ module.exports.isAvailable = async (req, res, next) => {
         return res.status(500).json({message: 'Internal Server Error'});
     }
 }
+
+module.exports.waitForNewRide = async (req, res, next) => {
+    //set time out for long polling
+    req.setTimeout(30000, () => {
+        res.send(204).end();
+    });
+    pendingReq.push(res); //push res to pendingRequests
+};
+
+subscribeToQueue("new-ride", (data)=>{
+    const rideData = JSON.parse(data);
+    pendingReq.forEach(res =>{
+        res.json(rideData);
+    })
+    //console.log(JSON.parse(data));
+    pendingReq.length = 0;
+})

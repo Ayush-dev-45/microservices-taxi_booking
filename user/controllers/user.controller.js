@@ -1,6 +1,9 @@
 const blackListModel = require('../models/blacklist.model');
 const userModel = require('../models/user.model');
 const { validationResult } = require('express-validator');
+const { subscribeToQueue } = require('../services/rabbitMq');
+
+const acceptedRides = [];
 
 module.exports.registerUser = async (req, res, next) => {
     const errors = validationResult(req);
@@ -76,3 +79,19 @@ module.exports.userLogout = async (req, res, next) => {
         return res.status(500).json({message: 'Internal Server Error'});
     }
 }
+
+module.exports.acceptedRide = async (req, res, next) => {
+    //long polling
+    req.setTimeout(30000, ()=>{
+        res.send(204).end();
+    })
+    acceptedRides.push(res);
+}
+
+subscribeToQueue("ride-accept", (data)=>{
+    const acceptedRide = JSON.parse(data);
+    acceptedRides.forEach(res => {
+        res.json(acceptedRide);
+    });
+    acceptedRides.length = 0;
+});

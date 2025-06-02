@@ -21,6 +21,8 @@ const RideSchema = new mongoose.Schema({
         enum: ['requested', 'accepted', 'started', 'completed'],
         default: 'requested'
     }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('ride', RideSchema);
