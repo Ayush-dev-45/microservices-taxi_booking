@@ -393,7 +393,7 @@ All endpoints return standardized error responses:
 }
 ```
 
-Common error codes:
+Common error in the codes:
 - `INVALID_CREDENTIALS`: Authentication failed
 - `UNAUTHORIZED`: Missing or invalid token
 - `VALIDATION_ERROR`: Invalid request data
